@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Ứng dụng quản lý nợ tiền thông minh với tính năng trả góp theo tháng">
+    <meta name="keywords" content="quản lý nợ, debt tracker, trả góp, thanh toán">
+    <title>Quản Lý Nợ Tiền - Debt Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-container">
+            <div class="login-header">
+                <h1>🔒 Đăng Nhập</h1>
+                <p>Nhập mật khẩu để truy cập ứng dụng quản lý nợ</p>
+            </div>
+            <form id="loginForm" class="login-form">
+                <div class="form-group">
+                    <label for="loginPassword">Mật khẩu</label>
+                    <input type="password" id="loginPassword" placeholder="Nhập mật khẩu" required autofocus>
+                </div>
+                <button type="submit" class="btn btn-primary">Đăng Nhập</button>
+                <p class="login-hint">Mật khẩu mặc định: <code>123456</code></p>
+                <p class="login-note">Bạn có thể đổi mật khẩu sau khi đăng nhập</p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Application (Hidden until logged in) -->
+    <div class="container" id="mainApp" style="display: none;">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div>
+                    <h1>💰 Quản Lý Nợ Tiền</h1>
+                    <p class="subtitle">Theo dõi và quản lý các khoản nợ một cách thông minh</p>
+                </div>
+                <div class="auth-buttons">
+                    <button class="btn btn-secondary btn-small" onclick="showChangePasswordModal()">🔑 Đổi mật
+                        khẩu</button>
+                    <button class="btn btn-secondary btn-small" onclick="logout()">🚪 Đăng xuất</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Statistics Dashboard -->
+        <section class="stats-dashboard">
+            <div class="stat-card stat-owed-to-me">
+                <div class="stat-icon">📥</div>
+                <div class="stat-content">
+                    <p class="stat-label">Người khác nợ tôi</p>
+                    <p class="stat-value" id="totalOwedToMe">0 ₫</p>
+                </div>
+            </div>
+            <div class="stat-card stat-i-owe">
+                <div class="stat-icon">📤</div>
+                <div class="stat-content">
+                    <p class="stat-label">Tôi nợ người khác</p>
+                    <p class="stat-value" id="totalIOwe">0 ₫</p>
+                </div>
+            </div>
+            <div class="stat-card stat-net">
+                <div class="stat-icon">💵</div>
+                <div class="stat-content">
+                    <p class="stat-label">Chênh lệch</p>
+                    <p class="stat-value" id="netBalance">0 ₫</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Add Debt Form -->
+        <section class="form-section">
+            <h2>➕ Thêm Khoản Nợ Mới</h2>
+            <form id="debtForm" class="debt-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="debtType">Loại nợ</label>
+                        <select id="debtType" required>
+                            <option value="owedToMe">Người khác nợ tôi</option>
+                            <option value="iOwe">Tôi nợ người khác</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="personName">Tên người</label>
+                        <input type="text" id="personName" placeholder="Nhập tên..." required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="amount">Số tiền (₫)</label>
+                        <input type="text" id="amount" placeholder="0" inputmode="numeric" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="date">Ngày nợ</label>
+                        <input type="date" id="date" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="notes">Ghi chú</label>
+                    <textarea id="notes" rows="2" placeholder="Thêm ghi chú (tùy chọn)..."></textarea>
+                </div>
+
+                <!-- Installment Payment Section -->
+                <div class="installment-section">
+                    <div class="form-group checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="hasInstallment">
+                            <span>Trả góp theo tháng</span>
+                        </label>
+                    </div>
+
+                    <div id="installmentDetails" class="installment-details" style="display: none;">
+                        <div class="form-group">
+                            <label for="installmentMonths">Số tháng trả góp</label>
+                            <input type="number" id="installmentMonths" min="1" max="60" value="12" placeholder="12">
+                            <small>Mỗi tháng trả: <span id="monthlyPayment">0 ₫</span></small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                        <span>Thêm Khoản Nợ</span>
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="cancelBtn" style="display: none;">
+                        Hủy
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Filter Section -->
+        <section class="filter-section">
+            <h2>📋 Danh Sách Nợ</h2>
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="all">Tất cả</button>
+                <button class="filter-btn" data-filter="owedToMe">Người khác nợ tôi</button>
+                <button class="filter-btn" data-filter="iOwe">Tôi nợ người khác</button>
+                <button class="filter-btn" data-filter="paid">Đã trả</button>
+                <button class="filter-btn" data-filter="unpaid">Chưa trả</button>
+            </div>
+        </section>
+
+        <!-- Debts List -->
+        <section class="debts-list" id="debtsList">
+            <div class="empty-state">
+                <div class="empty-icon">📝</div>
+                <p>Chưa có khoản nợ nào</p>
+                <small>Thêm khoản nợ đầu tiên của bạn ở trên</small>
+            </div>
+        </section>
+    </div>
+
+    <!-- Installment Payment Modal -->
+    <div id="installmentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📅 Chi Tiết Trả Góp</h3>
+                <button class="modal-close" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body" id="installmentModalBody">
+                <!-- Content will be dynamically generated -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div class="modal" id="changePasswordModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🔑 Đổi Mật Khẩu</h3>
+                <button class="modal-close" onclick="closeChangePasswordModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="changePasswordForm">
+                    <div class="form-group">
+                        <label for="currentPassword">Mật khẩu hiện tại</label>
+                        <input type="password" id="currentPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newPassword">Mật khẩu mới</label>
+                        <input type="password" id="newPassword" required minlength="4">
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Xác nhận mật khẩu mới</label>
+                        <input type="password" id="confirmPassword" required minlength="4">
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Đổi mật khẩu</button>
+                        <button type="button" class="btn btn-secondary"
+                            onclick="closeChangePasswordModal()">Hủy</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
