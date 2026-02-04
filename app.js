@@ -399,6 +399,10 @@ function showInstallmentModal(id) {
             ${debt.installment.payments.map((paid, index) => {
         const customAmount = debt.installment.customAmounts[index] || debt.installment.monthlyAmount;
         const formattedAmount = Math.round(customAmount).toLocaleString('vi-VN');
+        // Tính tháng thực tế từ ngày nợ - bắt đầu từ tháng SAU ngày nợ
+        const debtDate = new Date(debt.date);
+        const paymentDate = new Date(debtDate.getFullYear(), debtDate.getMonth() + 1 + index, 1);
+        const monthLabel = `Tháng ${paymentDate.getMonth() + 1}/${paymentDate.getFullYear()}`;
         return `
                 <div class="payment-item">
                     <input 
@@ -408,7 +412,7 @@ function showInstallmentModal(id) {
                         onchange="togglePayment('${id}', ${index})"
                     >
                     <div class="payment-info">
-                        <div class="payment-month">Tháng ${index + 1}</div>
+                        <div class="payment-month">${monthLabel}</div>
                         <div class="payment-amount-input">
                             <input 
                                 type="text" 
